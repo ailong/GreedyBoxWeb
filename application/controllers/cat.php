@@ -32,18 +32,19 @@ class Cat extends CI_Controller {
 	 *@offset integer 数据库偏移，如果是40则从40开始读取数据
 	 *
 	 */
-	public function index($cat_slug,$page = 1)
+	public function index($cat_slug,$label='all',$page = 1)
 	{
        //$this->output->cache(10);
 	   // todo 修改为页码数
-
+	   $label_decode = rawurldecode($label);
+	   
 		$this->config->load('site_info');
 
-		$limit=40;
+		$limit=20;
 		//每页显示数目
 		$cat_slug_decode = rawurldecode($cat_slug);
 
-		$config['base_url'] = site_url('/cat/'.$cat_slug);
+		$config['base_url'] = site_url('/cat/'.$cat_slug.'/'.$label_decode.'/');
 		//site_url可以防止换域名代码错误。
 		
 		//分类标题
@@ -53,12 +54,20 @@ class Cat extends CI_Controller {
 		
 		$identification = $this->M_pagetype->get_pagetype_identification($pagetypeid);
 		
+		if($label_decode == 'all'){
+			$label_decode = '';
+		}
+		
+		$labelid = $this->M_label->get_labelid_by_slug($label_decode);
+		
+		$data['labelid'] = $labelid;
+		
 		if($identification == 'article'){
-			$config['total_rows'] = $this->M_article->count_articles($cat->id);
+			$config['total_rows'] = $this->M_article->count_articles($cat->id,$labelid);
 		}else if($identification == 'item'){
 			$config['total_rows'] = $this->M_item->count_items($cat_slug_decode);
 		}else if($identification == 'joke'){
-			$config['total_rows'] = $this->M_joke->count_jokes($cat->id);
+			$config['total_rows'] = $this->M_joke->count_jokes($cat->id,$labelid);
 		}
 		
 		
@@ -68,6 +77,9 @@ class Cat extends CI_Controller {
 		$config['first_link'] = '首页';
 		$config['last_link'] = '尾页';
 		$config['num_links']=10;
+		$config['uri_segment'] = 4;
+		$config['cur_page'] = $page;
+		$config['use_page_numbers'] = TRUE;
 		//上面是自定义文字以及左右的连接数
 
 		$this->pagination->initialize($config);
@@ -89,16 +101,6 @@ class Cat extends CI_Controller {
 		$data['cat'] = $cats;
 		$data['slug'] = $cat_slug_decode;
 
-		//所有条目数据
-		//$data['items']=$this->M_item->get_all_item($limit,($page-1)*$limit,$cat_slug_decode);
-		
-		
-		
-		//$this->load->model('M_bannerpic');
-		
-		
-		
-		
 		
 		//站点信息
 		$data['site_name'] = $this->config->item('site_name');
@@ -111,7 +113,7 @@ class Cat extends CI_Controller {
 		$data['labels'] = $labels;
 		
 		if($identification == 'article'){
-			$articles = $this->M_article->get_all_articles($limit,($page-1)*$limit,$cat->id);
+			$articles = $this->M_article->get_all_articles($limit,($page-1)*$limit,$cat->id,$labelid);
 			$data['articles'] = $articles;
 			
 			$levelquery = $this->M_level->get_all_level();
@@ -165,6 +167,7 @@ class Cat extends CI_Controller {
 					$item['bannerpic'] = $this->M_bannerpic->get_bannerpic_loop_by_type(1,'4');
 					//$item['cat'] = $cat;
 					$item['label'] = $label;
+					$item['catid'] = $cat->id;
 					
 					$items[] = $item;
 				}
@@ -172,13 +175,14 @@ class Cat extends CI_Controller {
 			$data['items'] = $items;
 			$data['itemlabels'] = $itemlabels;
 		}else if($identification == 'joke'){
-			$jokes = $this->M_joke->get_all_jokes();
+			$jokes = $this->M_joke->get_all_jokes($limit,($page-1)*$limit,$cat->id,$labelid);
 			$data['jokes'] = $jokes;
 		}
 		
 		$listview = $this->M_pagetype->get_pagetype_listview($pagetypeid);
 		
-		$this->load->view($listview,$data);
+		$this->load->view('include_header',$data);
+		$this->load->view($listview);
 
 	}
 

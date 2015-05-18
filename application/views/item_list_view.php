@@ -1,60 +1,3 @@
-<!DOCTYPE html>
-<html lang="zh-cn">
-<head>
-	<meta charset="utf-8">
-	<title><?php
-	 echo $site_name;
-	 ?></title>
-	<meta name="keywords" content="<?php 
-		echo $site_keyword; ?>">
-	<meta name="description" content="<?php echo $site_description; ?>">
-
-	<link href="<?php echo base_url()?>assets/bootstrap/css/bootstrap.min.css" rel="stylesheet">
-	<link href="<?php echo base_url()?>assets/bootstrap/css/bootstrap-theme.min.css" rel="stylesheet">
-	<link rel="stylesheet" href="<?php echo base_url()?>assets/blockshow.css" />
-	<link href="<?php echo base_url()?>assets/docs.min.css" rel="stylesheet">
-	<script src="<?php echo base_url()?>assets/ckeditor/ckeditor.js"></script>
-	<script type='text/javascript' src='<?php echo base_url()?>assets/js/index.js'></script>
-</head>
-<body >
-<header class="navbar navbar-default navbar-fixed-top" role="banner" >
-<div class="container">
-<div class="row">
-		<div class="col-md-10 col-md-offset-1">
-		<div class="navbar-header">
-			 <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-2">
-				<span class="sr-only">Toggle navigation</span>
-				<span class="icon-bar"></span>
-				<span class="icon-bar"></span>
-				<span class="icon-bar"></span>
-			  </button>
-				<a class="navbar-brand" href="<?php echo site_url()?>">Brand</a>
-		</div>
-			<nav class="collapse navbar-collapse bs-navbar-collapse" id="bs-example-navbar-collapse-2">
-			  <ul class="nav navbar-nav">
-				  <?php
-					   foreach($cat->result() as $row){
-							$is_current = '';
-							if(!empty($slug) && $row->slug == $slug){
-								$is_current = 'active';
-							}
-						   echo '<li role="presentation" class="'.$is_current.'"><a href="'.site_url('cat/'.rawurlencode($row->slug)).'">'.$row->name.'</a></li>';
-						}
-					 ?>
-			  </ul>
-			  <form class="navbar-form navbar-right" role="search">
-				<div class="form-group">
-				  <input type="text" class="form-control" placeholder="Search">
-				</div>
-				<button type="submit" class="btn btn-default">搜索</button>
-			  </form>
-			</nav>
-
-		</div>
-		</div>
-		
-</div>
-</header>
 <div class="container bs-docs-container"  style="padding-top:80px;"  id="top" >
 
       <div class="row">
@@ -62,7 +5,7 @@
 		<div id="wrapper">
 <?php foreach($items as $item){?>
 <div class="floor-content row" id="label_<?php echo $item['label']->slug;?>">
-<div class="floor-show  floor-<?php echo $item['label']->slug;?> col-md-12">
+<div class="floor-show col-md-12 col-xs-12 col-sm-12 floor-<?php echo $item['label']->slug;?>"   style="margin-bottom: 10px;">
 <div class="floor-show-left floor-title grid-row-90 col-md-3">
 </div>
 <div class="floor-show-middle floor-brand-slide col-md-4">
@@ -80,38 +23,45 @@
 
 <div class="floor-show-sort col-md-1">
 <ul>
-	<li class="new"><a href="javascript:void(0);" class="sortactive" onclick="getitemdata(this,'<?php echo site_url('home/getitemdataonlocal/');?>','<?php echo $item['label']->slug;?>','<?php echo $item['label']->id;?>','adddatetime')">最新</a></li>
-	<li class="hot"><a href="javascript:void(0);" onclick="getitemdata(this,'<?php echo site_url('home/getitemdataonlocal/');?>','<?php echo $item['label']->slug;?>','<?php echo $item['label']->id;?>','click_count')">最热</a></li>
-	<li class="low"><a href="javascript:void(0);" onclick="getitemdata(this,'<?php echo site_url('home/getitemdataonlocal/');?>','<?php echo $item['label']->slug;?>','<?php echo $item['label']->id;?>','price')">最低</a></li>
+	<li class="new"><a href="javascript:void(0);" class="sortactive" onclick="getitemdata(this,'<?php echo site_url('home/getitemdataonlocal/');?>','label--<?php echo $item['label']->slug;?>','<?php echo $item['catid'];?>','<?php echo $item['label']->id;?>','adddatetime')">最新</a></li>
+	<li class="hot"><a href="javascript:void(0);" onclick="getitemdata(this,'<?php echo site_url('home/getitemdataonlocal/');?>','label--<?php echo $item['label']->slug;?>','<?php echo $item['catid'];?>','<?php echo $item['label']->id;?>','click_count')">最热</a></li>
+	<li class="low"><a href="javascript:void(0);" onclick="getitemdata(this,'<?php echo site_url('home/getitemdataonlocal/');?>','label--<?php echo $item['label']->slug;?>','<?php echo $item['catid'];?>','<?php echo $item['label']->id;?>','price')">最低</a></li>
 </ul>
 </div>
 </div>
 
-<div class="floor-banner-container col-md-12" id="<?php echo $item['label']->slug;?>">
+<div id="label--<?php echo $item['label']->slug;?>">
+
 <?php $labelitem = $item['item'];if($labelitem->num_rows()>0){ ?>
 <?php foreach ($labelitem->result() as $array):?>
-
-<div class="col-md-4 grid-row-330 good-list">
-	<div class="grid-good">
-		<a class="grid-row-330 floor-banner" href="<?php echo site_url('home/redirect').'/'.$array->id ?>" target="_blank">
-		<img data-original="<?php echo $array->img_url ?>" class="lazy col-md-12" alt="<?php echo $array->title ?>">		
-		<div class="good-info">
-			<div class="good-title">
-				<?php echo $array->title ?>
+ <div class="col-xs-12 col-sm-4 col-md-4 item">
+		<div class="thumbnail">
+		  <div class="gifcontrol">
+				<a href="<?php echo site_url('home/redirect').'/'.$array->id ?>" target="_blank">
+					<img src="<?php echo $array->img_url; ?>" alt="" title="">
+				</a>
 			</div>
+		  <div class="caption">
+			
+			<div style="border-top:2px solid #337AB7;">
+				<p><h5><b><?php echo $array->title ?></b></h5></p>
+				<p>--<?php echo $array->comment ?></p>
+				<p>品牌:<?php echo $array->sellernick; ?></p>
+				<p>￥<?php echo $array->price; ?>&nbsp;<s>￥<?php echo $array->oldprice; ?></s>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<?php echo $array->discount?>折</p>
+				
+				<p style="text-align:left;">
+					<a href="javascript:void(0);" class="vote" data-itemid="<?php echo $array->id; ?>" data-votevalue="good">
+						<span class="glyphicon glyphicon-heart" aria-hidden="true">
+					</a><?php echo $array->good;?></p>
+			</div>
+		  </div>
 		</div>
-		</a>
-		<div class="good-info-price">
-			<span class="price">￥<?php echo $array->price ?></span>
-			<span class="oldprice">￥<?php echo $array->oldprice?></span>
-			<span class="discount"><?php echo $array->discount?>折</span>
-		</div>
+	  </div>
+	<?php endforeach;?>
+<?php }?>
 	</div>
 </div>
-<?php endforeach;}?>
-</div>
 	
-</div>
 <div class="middlebannerpic row">
 		<a href="<?php $bannerpic=$item['bannerpic'];if($bannerpic != null){ echo site_url('home/bannerpic/'.$bannerpic->id)?>" target="_blank">
 		<img class="lazy" data-original="<?php echo $bannerpic->imgurl;?>" alt="<?php echo $bannerpic->name;}?>">
@@ -122,21 +72,6 @@
 
 
 </div>
-<nav>
-  <ul class="pagination">
-    <li class="disabled"><a href="#" aria-label="Previous"><span aria-hidden="true">&laquo;</span></a></li>
-    <li class="active"><a href="#">1 <span class="sr-only">(current)</span></a></li>
-    <li><a href="#">2 <span class="sr-only">(current)</span></a></li>
-    <li><a href="#">3 <span class="sr-only">(current)</span></a></li>
-    <li><a href="#">4 <span class="sr-only">(current)</span></a></li>
-    <li><a href="#">5 <span class="sr-only">(current)</span></a></li>
-     <li>
-      <a href="#" aria-label="Next">
-        <span aria-hidden="true">&raquo;</span>
-      </a>
-    </li>
-  </ul>
-</nav>
 
 </div>
 
@@ -172,14 +107,33 @@
 	</div>
 </footer>
 
-<script src="http://cdn.bootcss.com/jquery/1.11.2/jquery.min.js"></script>
+<script src="<?php echo base_url()?>assets/js/jquery/jquery-1.11.1.min.js"></script>
 <script src="<?php echo base_url()?>assets/bootstrap/js/bootstrap.min.js"></script>
 <script src="<?php echo base_url()?>assets/bootstrap/js/doc.js"></script>
 <script src="<?php echo base_url()?>assets/js/jquery.lazyload.min.js"></script>
+<script type='text/javascript' src='<?php echo base_url()?>assets/js/index.js'></script>
 <script type="text/javascript" charset="utf-8">
   $(function() {
      $("img.lazy").lazyload();
+     
+     $(".vote").click(function(){
+		var id = $(this).data('itemid');
+		var value = $(this).data('votevalue');
+		
+		$.post('<?php echo site_url("home/vote/")?>',
+						{
+							identification: 'item',
+							id : id,
+							value : value
+						},function(data){
+								if(data){
+									
+								}
+			});
+		});
   });
+  
+   
   </script>
 </body>
 </html>

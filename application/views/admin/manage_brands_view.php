@@ -12,19 +12,19 @@
           <form role="form" id="addbrandform" name="addbrandform" method="post" action="<?php echo site_url('admin/addbrand')?>">
 		  <input type="hidden" id="brandid" name="brandid" value=""/>
               <div class="form-group">
-                <label for="name">标题</label>
+                <label for="name" class="control-label">标题</label>
                 <input type="text" class="form-control" id="name" name="name" placeholder="标题">
               </div>
 			  <div class="form-group">
-                <label for="img_url">图片地址</label>
+                <label for="img_url" class="control-label">图片地址</label>
                 <input type="text" class="form-control" id="img_url" name="img_url" placeholder="图片地址">
               </div>
               <div class="form-group">
-                <label for="click_url">点击地址</label>
+                <label for="click_url" class="control-label">点击地址</label>
                 <input type="text" class="form-control" id="click_url" name="click_url" placeholder="点击地址">
               </div>                       
              <div class="form-group">
-              <label for="cid">类型</label>
+              <label for="cid" class="control-label">类型</label>
               <?php if($lxquery && $lxquery->num_rows()>0){?>
                 <select class="form-control" id="cid" name="cid">
                   
@@ -36,10 +36,11 @@
                 </select>
                 <?php } ?>
               </div>             			 
-              <button type="button" class="btn btn-default" id="submitaddbrand">Submit</button>
+              
           </form>
         </div>
         <div class="modal-footer">
+			<button type="button" class="btn btn-default" id="submitaddbrand">保存</button>
           <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
         </div>
           </div>
@@ -101,14 +102,19 @@
     endforeach;?>
 	</tbody>
   </table>
-	<div class="pagenav">
+	<nav>
+	  <ul class="pagination">
 		<?php echo $pagination;?>
-	</div>
-	<?php } ?>
-    </div>
+	  </ul>
+	</nav>
+	<?php }?>
+
+</div>
  
 <script>
 	(function($){
+		$.validity.setup({ outputMode:'boostrap' });
+		
 		$('.btn_delete').click(function(){
 			//event.preventDefault();
 			var r=confirm("你真的真的要删除吗？无法恢复！");
@@ -155,13 +161,15 @@
 		
 		$('#submitaddbrand').click(function(){
 			var url = "<?php echo site_url('admin/addbrand')?>";
-
+			
+			if (validateMyAjaxInputs()) {
 			$.post(url, $("#addbrandform").serialize(),function(data){
 				if(data){					
 					$('#addbrand').modal('hide');
 					location.reload();
 				}
 			});
+		  }
 		});
 		
 		$('#addbrand').on('hide.bs.modal', function (e) {
@@ -173,6 +181,28 @@
 			$('#modal-title').text('新增品牌');
 		})
 	})(jQuery);
+	
+	function validateMyAjaxInputs() {
+
+			// Start validation:
+			$.validity.start();
+			
+			// Validator methods go here:
+			
+			// For instance:
+			$("#name").require();
+			$("#img_url").require();
+			$("#cid").require();
+			$("#click_url").require();
+			
+			
+			// All of the validator methods have been called:
+			// End the validation session:
+			var result = $.validity.end();
+			
+			// Return whether it's okay to proceed with the Ajax:
+			return result.valid;
+	}
 </script>
 </body>
 </html>

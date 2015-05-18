@@ -35,10 +35,16 @@
 				</div>
 			  </div>
 			  <div class="form-group">
+				<label for="comment" class="col-sm-2 control-label">点评</label>
+				<div class="col-sm-10">
+					<input type="text" class="form-control" id="comment" name="comment" placeholder="点评">
+				</div>
+			  </div>
+			  <div class="form-group">
 					
 					 <label for="cid" class="col-sm-2 control-label">类型</label>
 				  <div class="col-sm-4">
-					  <?php if($lxquery && $lxquery->num_rows()>0){?>
+					  
 						<select class="form-control" id="cid" name="cid">
 						  
 						  <?php foreach($lxquery->result() as $lxarray):?>
@@ -47,7 +53,7 @@
 						  //结束类型
 						  endforeach;?>
 						</select>
-						<?php } ?>
+						
 					</div>
 					<label for="labelid" class="col-sm-2 control-label">标签</label>
 					<div class="col-sm-4">
@@ -122,56 +128,56 @@
 						<?php } ?>
 			</li>
 		</ul>
-		
-	<?php if($query->num_rows()>0){ ?>
+	
+	<div class="row" style="margin-top:10px;">
+	<?php foreach($query->result() as $array):?>
 
-	<table class="table table-bordered table-striped" style="table-layout:fixed;word-break:break-all;overflow:hidden;" width="960px">
-    <thead>
-      <tr>
-        <th style="width:5%;">序号</th>
-        <th style="width:10%;">图片</th>
-        <th style="width:20%;">名称</th>       
-        <th style="width:25%;">点击地址</th>
-        <th style="width:15%;">卖家</th>
-        <th style="width:5%;">价格</th>
-        <th style="width:5%;">类别</th>
-        <th style="width:5%;">点击次数</th>
-        <th style="width:10%;">操作</th>
-      </tr>
-    </thead>
-    <tbody>
-	<?php
-	 foreach ($query->result() as $array):
-	//条目开始
-		?>
-	<tr>
-    	<th style="width:5%;"><?php echo $array->id ?></th>
-        <td style="width:10%;"><img src="<?php echo $array->img_url; ?>" class="thumbnail" alt="" title=""></td>
-        <td style="width:20%;"><?php echo $array->title ?></td>        
-        <td style="width:25%;"><?php echo $array->click_url; ?></td>        
-        <td style="width:15%;"><?php echo $array->sellernick; ?></td>
-        <td style="width:5%;"><strong><?php echo $array->price; ?></strong></td>
-        <td style="width:5%;"><?php echo $lx_zd[$array->cid] ?></td>
-        <td style="width:5%;"><?php echo $array->click_count;?></td>
-        <td style="width:10%;">
-        	<a href="#" title="修改此条" class="btn_update" data-itemid="<?php echo $array->id; ?>">修改</a>&nbsp;&nbsp;
-        	<a href="#" title="删除此条" class="btn_delete"  data-itemid="<?php echo $array->id; ?>">删除</a>
-        </td>
-      </tr>
-	<?php
-    //条目结束
-    endforeach;?>
-	</tbody>
-  </table>
-	<div class="pagenav">
-		<?php echo $pagination;?>
+	  <div class="col-sm-3 col-md-2 item">
+		<div class="thumbnail">
+		  
+		  <div class="caption">
+			<p>
+			<div class="gifcontrol">
+				<img src="<?php echo $array->img_url; ?>" alt="" title="">
+			</div>
+			</p>
+			<div style="border-top:2px solid #337AB7;">
+				<p>ID: <?php echo $array->id ?></p>
+				<p>名称:<?php echo $array->title ?></p>
+				<p>点评:<?php echo $array->comment ?></p>
+				<p>类别:<?php echo $lx_zd[$array->cid]?></p>
+				<p>标签:<?php echo $label_zd[$array->labelid]; ?></p>
+				<p>卖家:<?php echo $array->sellernick; ?></p>
+				<p>价格:<?php echo $array->price; ?>&nbsp;旧价格:<?php echo $array->oldprice; ?></p>
+				<p>点击次数:<?php echo $array->click_count;?></p>
+				<p>点击地址:<a href="#" title="<?php echo $array->click_url; ?>">查看</a></p>
+				<p>
+					<a href="#" title="修改此条" class="btn_update btn btn-primary" data-itemid="<?php echo $array->id; ?>">修改</a>
+					<a href="#" title="删除此条" class="btn_delete btn btn-primary"  data-itemid="<?php echo $array->id; ?>">删除</a>
+				</p>
+			</div>
+		  </div>
+		</div>
+	  </div>
+	<?php endforeach;?>
 	</div>
-	<?php } ?>
+	
+  
+  
+  
+	<nav>
+	  <ul class="pagination">
+		<?php echo $pagination;?>
+	  </ul>
+	</nav>
+		
     </div>
  
 
 <script>
 	(function($){
+		$.validity.setup({ outputMode:'boostrap' });
+		
 		$('.btn_delete').click(function(){
 			//event.preventDefault();
 			var r=confirm("你真的真的要删除吗？无法恢复！");
@@ -185,7 +191,7 @@
 							item_id: delete_item_id
 						},function(data){
 								if(data){ //如果删除成功
-									that.parents('tr').fadeToggle();
+									that.parents('.item').fadeToggle();
 								}
 							});
 				} else
@@ -211,6 +217,7 @@
 									$('#sellernick').val(data['sellernick']);
 									$('#oldprice').val(data['oldprice']);
 									$('#discount').val(data['discount']);
+									$('#comment').val(data['comment']);
 									
 									showlabel();
 									
@@ -231,22 +238,24 @@
 				url = "<?php echo site_url('admin/updataitem/')?>";
 			}
 			
-			$.post(url, $("#additemform").serialize(),function(data){
-				if(data){
-				
-					/* if($('#item_id').val() == ""){
-						
-						$('tbody').prepend('<tr><th>'+data+'</th><td><img src="'+$('#img_url').val()+'" class="thumbnail" alt="" title=""></td>'
-						+'<td>'+$('#title').val()+'</td><td>'+$('#click_url').val()+'</td><td>'+$('#sellernick').val()+'</td>'
-						+'<td><strong>'+$('#price').val()+'</strong></td><td>'+$('#cid').val()+'</td><td>0</td>'
-						+'<td><a href="#" title="修改此条" class="btn_update" data-itemid="'+data+'">修改</a>&nbsp;&nbsp;'
-						+'<a href="#" title="删除此条" class="btn_delete"  data-itemid="'+data+'">删除</a> </td></tr>').fadeIn();
-					} */
+			if (validateMyAjaxInputs()) {
+				$.post(url, $("#additemform").serialize(),function(data){
+					if(data){
 					
-					location.reload();
-					$('#additem').modal('hide');
-				}
-			});
+						/* if($('#item_id').val() == ""){
+							
+							$('tbody').prepend('<tr><th>'+data+'</th><td><img src="'+$('#img_url').val()+'" class="thumbnail" alt="" title=""></td>'
+							+'<td>'+$('#title').val()+'</td><td>'+$('#click_url').val()+'</td><td>'+$('#sellernick').val()+'</td>'
+							+'<td><strong>'+$('#price').val()+'</strong></td><td>'+$('#cid').val()+'</td><td>0</td>'
+							+'<td><a href="#" title="修改此条" class="btn_update" data-itemid="'+data+'">修改</a>&nbsp;&nbsp;'
+							+'<a href="#" title="删除此条" class="btn_delete"  data-itemid="'+data+'">删除</a> </td></tr>').fadeIn();
+						} */
+						
+						location.reload();
+						$('#additem').modal('hide');
+					}
+				});
+		  }
 		});
 		
 		$('#additem').on('hide.bs.modal', function (e){
@@ -260,6 +269,7 @@
 			$('#oldprice').val("");
 			$('#discount').val("");
 			$('#labelid').val("");
+			$('#comment').val("");
 			
 			$('#modal-title').text('增加商品条目');
 		});
@@ -292,6 +302,32 @@
 		$('.label-cid').hide();
 		$('.label-cid-'+ cid).show();
 		$('#labelid').val('');
+	}
+	
+	function validateMyAjaxInputs() {
+
+			// Start validation:
+			$.validity.start();
+			
+			// Validator methods go here:
+			
+			// For instance:
+			$("#title").require();
+			$("#cid").require();
+			$("#click_url").require();
+			$("#img_url").require();
+			$("#price").require();
+			$("#sellernick").require();
+			$("#oldprice").require();
+			$("#discount").require();
+			$("#labelid").require();
+			$("#comment").require();
+			// All of the validator methods have been called:
+			// End the validation session:
+			var result = $.validity.end();
+			
+			// Return whether it's okay to proceed with the Ajax:
+			return result.valid;
 	}
 </script>
 </body>

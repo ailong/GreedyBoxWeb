@@ -35,7 +35,7 @@ class Home extends CI_Controller {
 	public function page($page)
 	{
 
-		$limit=1;
+		$limit= 20;
 		$config['base_url'] = base_url()."/index.php/home/page/";
 		$config['total_rows'] = $this->M_article->count_articles();
 		$config['per_page'] = $limit;
@@ -67,7 +67,7 @@ class Home extends CI_Controller {
 			
 		$data['cat_zd'] = $cat_zd;
 		
-		$articles = $this->M_article->get_all_articles();
+		$articles = $this->M_article->get_all_articles($limit,($page-1)*$limit);
 		$data['articles'] = $articles;
 		
 		$levelquery = $this->M_level->get_all_level();
@@ -101,10 +101,6 @@ class Home extends CI_Controller {
 		
 		$data['jokes'] = $jokes;
 		
-		$this->load->model('M_friendlink');
-		
-		$data['friendlinks'] = $this->M_friendlink->get_all_friendlink_by_type('100','0');
-		
 		//站点信息
 		$data['site_name'] = $this->config->item('site_name');
 
@@ -112,7 +108,8 @@ class Home extends CI_Controller {
 		$data['site_keyword'] = $this->config->item('site_keyword');
 		$data['site_description'] = $this->config->item('site_description');
 		
-		$this->load->view('home_view',$data);
+		$this->load->view('include_header',$data);
+		$this->load->view('home_view');
 	}
 
 	/**
@@ -171,9 +168,8 @@ class Home extends CI_Controller {
 	 * 搜索结果页
 	 *
 	 */
-	public function search(){
+	public function search($page=1){
         //$this->load->model('M_taobaoapi');
-        $data['cat'] = $this->M_cat->get_all_cat();
 
          //获取搜索关键词+过滤
         $data['keyword'] = trim($this->input->get('keyword', TRUE),"'\"><");
@@ -183,29 +179,123 @@ class Home extends CI_Controller {
 		//关键词列表，这个在后台配置
 		$data['keyword_list'] = $this->M_keyword->get_all_keyword(5);
 		
-		$this->load->model('M_bannerpic');
-
-		//搜索条目的结果
-		$itemcat = array(					
-					'item' => $this->M_item->searchItem($data['keyword']),
-					'bannerpic' => $this->M_bannerpic->get_bannerpic_loop_by_type(1,'4')
-		);
+		$limit= 20;
+		$config['base_url'] = base_url()."/index.php/home/page/";
+		$config['total_rows'] = $this->M_article->count_articles_by_keyword($data['keyword']);
+		$config['per_page'] = $limit;
+		$config['first_link'] = '首页';
+		$config['last_link'] = '尾页';
+		$config['num_links']=10;
+		$config['uri_segment'] = 3;
+		$config['cur_page'] = $page;
+		$config['use_page_numbers'] = TRUE;
 		
-		$data['itemcat'] = $itemcat;
-        
+		$this->pagination->initialize($config);
+		$data['pagination']=$this->pagination->create_links();
+
+		//类别
+		$cats = $this->M_cat->get_all_cat();
+		$data['cat'] = $cats;
+		
+		$cat_zd = array();
+			
+			if($cats->num_rows()>0){
+				foreach($cats->result() as $lx){
+					$cat_zd[$lx->id] = $lx->typeid;
+				}
+			}
+			
+		$data['cat_zd'] = $cat_zd;
+		
+		$articles = $this->M_article->get_articles_by_keyword($data['keyword'],$limit,($page-1)*$limit);
+		$data['articles'] = $articles;
+		
+		$levelquery = $this->M_level->get_all_level();
+
+		$data['levelquery'] = $levelquery;
+		
+		$level_zd = array();
+		
+		if($levelquery->num_rows()>0){
+			foreach($levelquery->result() as $lx){
+				$level_zd[$lx->id] = $lx->color;
+			}
+		}
+			
+		$data['level_zd'] = $level_zd;
+		
+		$pagetypequery = $this->M_pagetype->get_all_pagetype();
+			
+			
+		$pagetype_zd = array();
+		
+		if($pagetypequery->num_rows()>0){
+			foreach($pagetypequery->result() as $lx){
+				$pagetype_zd[$lx->id] = $lx->identification;
+			}
+		}
+		
+		$data['pagetype_zd'] = $pagetype_zd;
+		
+		$jokes = $this->M_joke->get_all_jokes();
+		
+		$data['jokes'] = $jokes;
+		
+		$this->load->model('M_friendlink');
+		
+		$data['friendlinks'] = $this->M_friendlink->get_all_friendlink_by_type('100','0');
+		
 		//站点信息
 		$data['site_name'] = $this->config->item('site_name');
+
 		//keysords和description
 		$data['site_keyword'] = $this->config->item('site_keyword');
 		$data['site_description'] = $this->config->item('site_description');
-		$data['pid'] = '12345678';
 		
-		$this->load->view('search_view',$data);
+		$this->load->view('include_header',$data);
+		$this->load->view('search_view');
 	}
 	
+	public function friendlinks(){
+		$cats = $this->M_cat->get_all_cat();
+		$data['cat'] = $cats;
+		
+		$this->load->model('M_friendlink');
+		
+		$data['friendlinks'] = $this->M_friendlink->get_all_friendlink_by_type('100','0');
+		
+		//站点信息
+		$data['site_name'] = $this->config->item('site_name');
+
+		//keysords和description
+		$data['site_keyword'] = $this->config->item('site_keyword');
+		$data['site_description'] = $this->config->item('site_description');
+		
+		$this->load->view('include_header',$data);
+		$this->load->view('friendlinks_view');
+		
+	}
+	
+	public function webmap(){
+		$cats = $this->M_cat->get_all_cat();
+		$data['cat'] = $cats;
+		
+		
+		
+		//站点信息
+		$data['site_name'] = $this->config->item('site_name');
+
+		//keysords和description
+		$data['site_keyword'] = $this->config->item('site_keyword');
+		$data['site_description'] = $this->config->item('site_description');
+		
+		$this->load->view('include_header',$data);
+		$this->load->view('webmap_view');
+	}
 	
 	public function getitemdataonlocal(){
 		$catid = $this->input->post('catid');
+		$labelid = $this->input->post('labelid');
 		$sort = $this->input->post('sort');
 		
 		if($sort =='click_count')
@@ -216,7 +306,7 @@ class Home extends CI_Controller {
 			$sort .= ' desc';
 		else echo false;
 		
-		$itemsinfo = $this->M_item->get_all_item_by_cid('24','0',$catid,$sort);
+		$itemsinfo = $this->M_item->get_all_item_by_cid('24','0',$catid,$labelid,$sort);
 		$itemsresult = array();
 		if(!empty($itemsinfo)){
 		if ($itemsinfo->num_rows >0){
@@ -228,18 +318,49 @@ class Home extends CI_Controller {
 			$item_info_array['title']=$iteminfo->title;
 			$item_info_array['cid']=$iteminfo->cid;
 			$item_info_array['click_url']=$iteminfo->click_url;
+			$item_info_array['redirect_url']= site_url('home/redirect').'/'.$iteminfo->id;
 			$item_info_array['img_url']=$iteminfo->img_url;
 			$item_info_array['price']=$iteminfo->price;
 			$item_info_array['sellernick']=$iteminfo->sellernick;
-			$item_info_array['num_iid']=$iteminfo->num_iid;
+			$item_info_array['comment']=$iteminfo->comment;
 			$item_info_array['oldprice']=$iteminfo->oldprice;
 			$item_info_array['discount']=$iteminfo->discount;
+			$item_info_array['click_count']=$iteminfo->click_count;
+			$item_info_array['good']=$iteminfo->good;
+			$item_info_array['unlike']=$iteminfo->unlike;
 			
 			$itemsresult[] = $item_info_array;
 			}
 		}}
 		
 		echo json_encode($itemsresult);
+	}
+	
+	public function vote(){
+		$identification = $this->input->post('identification');
+		$id = $this->input->post('id');
+		$value = $this->input->post('value');
+		
+		if($identification == 'article'){
+			if('good' == $value){
+				$this->M_article->vote_good($id);
+			}else if('unlike' == $value){
+				$this->M_article->vote_unlike($id);
+			}
+		}else if($identification == 'joke'){
+			if('good' == $value){
+				$this->M_joke->vote_good($id);
+			}else if('unlike' == $value){
+				$this->M_joke->vote_unlike($id);
+			}
+		}
+		 else if($identification == 'item'){
+			if('good' == $value){
+				$this->M_item->vote_good($id);
+			}else if('unlike' == $value){
+				$this->M_item->vote_unlike($id);
+			}
+		}
 	}
 }
 

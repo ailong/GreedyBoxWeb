@@ -12,6 +12,7 @@ class Admin extends CI_Controller {
 	function __construct()
 		{
 			parent::__construct();
+			$this->load->library('pagination');
 			$this->load->model('M_item');
 			$this->load->model('M_cat');
 			$this->load->model('M_banner');
@@ -311,7 +312,7 @@ class Admin extends CI_Controller {
 	 *
 	 */
 	 public function manageitem($page = 1){
-		    $limit = 10;
+		    $limit = 20;
 			$offset = ($page-1)*$limit;
 			$this->load->library('pagination');
 
@@ -319,7 +320,7 @@ class Admin extends CI_Controller {
 			//site_url可以防止换域名代码错误。
 
 	        $config['use_page_numbers'] = TRUE;
-	        //$config['first_url'] = site_url('/admin/manageitem');
+	        $config['first_url'] = site_url('/admin/manageitem/');
 
 			$config['total_rows'] = $this->M_item->count_items();
 			//这是模型里面的方法，获得总数。
@@ -329,6 +330,7 @@ class Admin extends CI_Controller {
 			$config['last_link'] = '尾页';
 			$config['num_links']=10;
 			$config['uri_segment'] = 3;
+			$config['cur_page'] = $page;
 			//上面是自定义文字以及左右的连接数
 
 			$this->pagination->initialize($config);
@@ -369,7 +371,7 @@ class Admin extends CI_Controller {
 			$data['label_zd'] = $label_zd;
 			
 			$this->load->view('admin/include_header');
-			$this->load->view('admin/add_items_view',$data);
+			$this->load->view('admin/manage_items_view',$data);
 	}
 
 	/**
@@ -408,6 +410,7 @@ class Admin extends CI_Controller {
 			$item_info_array['oldprice']=$iteminfo->oldprice;
 			$item_info_array['discount']=$iteminfo->discount;
 			$item_info_array['labelid']=$iteminfo->labelid;
+			$item_info_array['comment']=$iteminfo->comment;
 			
 			echo json_encode($item_info_array);
 		}else{
@@ -420,16 +423,16 @@ class Admin extends CI_Controller {
 	 *
 	 */
 	 public function managebanner($page = 1){
-		    $limit = 15;
-			$offset = ($page-1)*$limit;
-			$this->load->library('pagination');
 			$this->load->model('M_bannerpic');
 			
-			$config['base_url'] = site_url('/admin/managebanner');
+		    $limit = 15;
+			$offset = ($page-1)*$limit;
+			
+			$config['base_url'] = site_url('/admin/managebanner/');
 			//site_url可以防止换域名代码错误。
 
 	        $config['use_page_numbers'] = TRUE;
-	        $config['first_url'] = site_url('/admin/managebanner');
+	        $config['first_url'] = site_url('/admin/managebanner/');
 
 			$config['total_rows'] = $this->M_bannerpic->count_bannerpic();
 			//这是模型里面的方法，获得总数。
@@ -439,6 +442,7 @@ class Admin extends CI_Controller {
 			$config['last_link'] = '尾页';
 			$config['num_links']=10;
 			$config['uri_segment'] = 3;
+			$config['cur_page'] = $page;
 			//上面是自定义文字以及左右的连接数
 
 			$this->pagination->initialize($config);
@@ -586,14 +590,12 @@ class Admin extends CI_Controller {
 	 public function managelabel($page = 1){
 		    $limit = 15;
 			$offset = ($page-1)*$limit;
-			$this->load->library('pagination');
-			$this->load->model('M_label');
 			
-			$config['base_url'] = site_url('/admin/managelabel');
+			$config['base_url'] = site_url('/admin/managelabel/');
 			//site_url可以防止换域名代码错误。
 
 	        $config['use_page_numbers'] = TRUE;
-	        $config['first_url'] = site_url('/admin/managelabel');
+	        $config['first_url'] = site_url('/admin/managelabel/');
 
 			$config['total_rows'] = $this->M_label->count_label();
 			//这是模型里面的方法，获得总数。
@@ -603,6 +605,7 @@ class Admin extends CI_Controller {
 			$config['last_link'] = '尾页';
 			$config['num_links']=10;
 			$config['uri_segment'] = 3;
+			$config['cur_page'] = $page;
 			//上面是自定义文字以及左右的连接数
 
 			$this->pagination->initialize($config);
@@ -648,8 +651,7 @@ class Admin extends CI_Controller {
 						'id' =>$label->id,
 						'title' =>$label->title,
 						'slug' =>$label->slug,
-					   'click_url'=>$label->click_url,
-					   'cid' => $label->cid,
+					   'cid' => $label->cid
 			);
 			
 		echo json_encode($data);
@@ -662,8 +664,7 @@ class Admin extends CI_Controller {
 		$data = array(
 			   'title' => $this->input->post('title'),
                'cid' => $this->input->post('cid'),
-			   'slug' =>  $this->input->post('slug'),
-               'click_url' =>  $this->input->post('click_url')
+			   'slug' =>  $this->input->post('slug')
 		); 
 		
 		
@@ -682,14 +683,12 @@ class Admin extends CI_Controller {
 	 public function managebrand($page = 1){
 		    $limit = 15;
 			$offset = ($page-1)*$limit;
-			$this->load->library('pagination');
-			$this->load->model('M_brand');
 			
-			$config['base_url'] = site_url('/admin/managebrand');
+			$config['base_url'] = site_url('/admin/managebrand/');
 			//site_url可以防止换域名代码错误。
 
 	        $config['use_page_numbers'] = TRUE;
-	        $config['first_url'] = site_url('/admin/managebrand');
+	        $config['first_url'] = site_url('/admin/managebrand/');
 
 			$config['total_rows'] = $this->M_brand->count_brand();
 			//这是模型里面的方法，获得总数。
@@ -699,6 +698,7 @@ class Admin extends CI_Controller {
 			$config['last_link'] = '尾页';
 			$config['num_links']=10;
 			$config['uri_segment'] = 3;
+			$config['cur_page'] = $page;
 			//上面是自定义文字以及左右的连接数
 
 			$this->pagination->initialize($config);
@@ -823,14 +823,12 @@ class Admin extends CI_Controller {
 	 public function managefriendlink($page = 1){
 		    $limit = 15;
 			$offset = ($page-1)*$limit;
-			$this->load->library('pagination');
 			$this->load->model('M_friendlink');
-			
-			$config['base_url'] = site_url('/admin/managefriendlink');
+			$config['base_url'] = site_url('/admin/managefriendlink/');
 			//site_url可以防止换域名代码错误。
 
 	        $config['use_page_numbers'] = TRUE;
-	        $config['first_url'] = site_url('/admin/managefriendlink');
+	        $config['first_url'] = site_url('/admin/managefriendlink/');
 
 			$config['total_rows'] = $this->M_friendlink->count_friendlink();
 			//这是模型里面的方法，获得总数。
@@ -840,6 +838,7 @@ class Admin extends CI_Controller {
 			$config['last_link'] = '尾页';
 			$config['num_links']=10;
 			$config['uri_segment'] = 3;
+			$config['cur_page'] = $page;
 			//上面是自定义文字以及左右的连接数
 
 			$this->pagination->initialize($config);
@@ -884,29 +883,19 @@ class Admin extends CI_Controller {
 	 *
 	 */
 	 public function managearticle($page = 1){
-		    $limit = 10;
-			$offset = ($page-1)*$limit;
-			$this->load->library('pagination');
-
-			$config['base_url'] = site_url('/admin/manageitem/');
-			//site_url可以防止换域名代码错误。
-
-	        $config['use_page_numbers'] = TRUE;
-	        //$config['first_url'] = site_url('/admin/managearticle');
-
+		    $limit= 20;
+		    $offset = $limit * ($page - 1);
+			$config['base_url'] = base_url()."/admin/managearticle/";
 			$config['total_rows'] = $this->M_article->count_articles();
-			//这是模型里面的方法，获得总数。
-
 			$config['per_page'] = $limit;
 			$config['first_link'] = '首页';
 			$config['last_link'] = '尾页';
 			$config['num_links']=10;
 			$config['uri_segment'] = 3;
-			//上面是自定义文字以及左右的连接数
-
+			$config['cur_page'] = $page;
+			$config['use_page_numbers'] = TRUE;
+			
 			$this->pagination->initialize($config);
-			//初始化配置
-
 			$data['pagination']=$this->pagination->create_links();
 			//通过数组传递参数
 			//以上是重点
@@ -1026,7 +1015,7 @@ class Admin extends CI_Controller {
 	 *
 	 */
 	 public function managejoke($page = 1){
-		    $limit = 10;
+		    $limit = 20;
 			$offset = ($page-1)*$limit;
 			$this->load->library('pagination');
 
@@ -1044,6 +1033,7 @@ class Admin extends CI_Controller {
 			$config['last_link'] = '尾页';
 			$config['num_links']=10;
 			$config['uri_segment'] = 3;
+			$config['cur_page'] = $page;
 			//上面是自定义文字以及左右的连接数
 
 			$this->pagination->initialize($config);
@@ -1054,8 +1044,8 @@ class Admin extends CI_Controller {
 			//以上是重点
 
 			$data['query'] = $this->M_joke->get_all_jokes($limit,$offset);
-            
-			$lxquery = $this->M_cat->get_all_cat();
+            $typeid = $this->M_pagetype->get_pagetypeid_by_identification('joke');
+			$lxquery = $this->M_cat->get_all_cat_by_typeid($typeid);
 			$data['lxquery'] = $lxquery;
 			
 			$lx_zd = array();
@@ -1067,6 +1057,7 @@ class Admin extends CI_Controller {
 			}
 			
 			$data['lx_zd'] = $lx_zd;
+            
 			
 			$levelquery = $this->M_level->get_all_level();
 			$data['levelquery'] = $levelquery;
@@ -1108,6 +1099,7 @@ class Admin extends CI_Controller {
                            'joke_cid' =>$_POST['joke_cid'],
                            'joke_labelid' =>$_POST['joke_labelid'],
                            'joke_html' =>$_POST['joke_html'],
+                           'joke_imgurl' => $_POST['joke_imgurl'],
                            'joke_authorid' =>$_POST['joke_authorid'],
                            'joke_levelid' => $_POST['joke_levelid']
                         );
@@ -1132,7 +1124,8 @@ class Admin extends CI_Controller {
 			$data = array(
 						 'id' => $joke -> id ,
                            'cid' => $joke -> cid ,
-                           'labelid' => $joke -> labelid ,
+                           'labelid' => $joke -> labelid,
+                           'imgurl' => $joke->img_url,
                            'html' =>$joke -> html,
                            'authorid' =>$joke -> authorid,
                            'levelid' => $joke -> levelid,
@@ -1147,6 +1140,7 @@ class Admin extends CI_Controller {
 							'joke_id' =>$_POST['joke_id'],
                            'joke_cid' =>$_POST['joke_cid'],
                            'joke_labelid' =>$_POST['joke_labelid'],
+                           'joke_imgurl' =>$_POST['joke_imgurl'],
                            'joke_html' =>$_POST['joke_html'],
                            'joke_authorid' =>$_POST['joke_authorid'],
                            'joke_levelid' => $_POST['joke_levelid'],

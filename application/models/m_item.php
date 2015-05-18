@@ -25,7 +25,8 @@ class M_item extends CI_Model{
 			   'oldprice' => $_POST['oldprice'],
 			   'discount' => $_POST['discount'],
 			   'adddatetime' => date('YmdHis',time()),
-			   'labelid' => $_POST['labelid']
+			   'labelid' => $_POST['labelid'],
+			   'comment' => $_POST['comment']
             );
 		
 		return $this->db->insert($this->item_table, $data);
@@ -49,7 +50,8 @@ class M_item extends CI_Model{
                'sellernick' => $_POST['sellernick'],
 			   'oldprice' => $_POST['oldprice'],
 			   'discount' => $_POST['discount'],
-			   'labelid' => $_POST['labelid']
+			   'labelid' => $_POST['labelid'],
+			   'comment' => $_POST['comment']
             );
 		
 		$this->db->where('id',$item_id);
@@ -92,6 +94,8 @@ class M_item extends CI_Model{
 
 		//如果是分类页
 		if(!empty($cat)){
+			$this->db->select('item.id id,img_url,click_count,price,oldprice,discount,cid,slug,item.title title,sellernick,comment,good,unlike');
+			
 			$where = "cid= cat.id AND slug='".$cat."'";
 			
 			if(!empty($labelid)){
@@ -118,12 +122,17 @@ class M_item extends CI_Model{
 	//获得所有条目
 	//$limit为每页书目，必填
 	//$offset为偏移，必填
-	function get_all_item_by_cid($limit='40',$offset='0',$cat=-1,$sort='adddatetime desc')
+	function get_all_item_by_cid($limit='40',$offset='0',$cat=-1,$labelid=-1,$sort='adddatetime desc')
 	{
 
 		//如果是分类页
 		if($cat >= 0){
 			$this->db->where('cid',$cat);
+			
+			if($labelid > 0){
+				$this->db->where('labelid',$labelid);
+			}
+			
 			$this->db->order_by($sort);
 			$query = $this->db->get($this->item_table,$limit,$offset);
 			}
@@ -142,13 +151,18 @@ class M_item extends CI_Model{
 	 * @param string cat_slug 类别的slug
 	 * @return integer 类别的数目
 	 */
-	function count_items($cat_slug=''){
-		if(empty($cat_slug)){
+	function count_items($cat_slug='',$labelid=""){
+		if(empty($cat_slug) && empty($labelid)){
 			return $this->db->count_all_results($this->item_table);
 		}else{
 
 			$this->db->select('COUNT(item.id) AS count');
 			$where = "cid= cat.id AND slug='".$cat_slug."'";
+			
+			if(!empty($labelid)){
+				$where = $where." AND item.labelid = ".$labelid;
+			}
+			
 			$this->db->join($this->cat_table,$where);
 			$this->db->order_by('item.id DESC');
 			$query = $this->db->get($this->item_table);
@@ -255,6 +269,24 @@ class M_item extends CI_Model{
     //     }
     // }
 
-
+    function vote_good($id){
+		$this->db->where('id',$id);
+		
+		$this->db->set('good',"good + 1", FALSE);
+		
+		$this->db->update($this->item_table);
+		
+		return $id;
+	}
+	
+	function vote_unlike($id){
+		$this->db->where('id',$id);
+		
+		$this->db->set('unlike',"unlike + 1", FALSE);
+		
+		$this->db->update($this->item_table);
+		
+		return $id;
+	}
 
 }

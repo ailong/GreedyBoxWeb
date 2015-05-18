@@ -53,6 +53,10 @@ class M_login extends CI_Model{
 				 'type' => 'VARCHAR',
 				 'constraint' => '128',
 		  ),
+		  'comment' => array(
+				 'type' => 'VARCHAR',
+				 'constraint' => '200',
+		  ),
 			'price' => array(
 				 'type' => 'FLOAT'
 		  ),
@@ -69,6 +73,16 @@ class M_login extends CI_Model{
 		  'adddatetime' => array(
 				 'type' => 'VARCHAR',
 				 'constraint' => '14',
+		  ),
+		  'good' => array(
+				 'type' => 'INT',
+				 'constraint' => '32',
+				 'default' => 0
+		  ),
+		  'unlike' => array(
+				  'type' => 'INT',
+				 'constraint' => '32',
+				 'default' => 0
 		  )
 		);
 
@@ -504,6 +518,11 @@ class M_login extends CI_Model{
 				 'type' => 'INT',
 				 'constraint' => '128',
 				 'unsigned' => TRUE,
+				 'null' => TRUE
+		  ),
+			'img_url' => array(
+				 'type' => 'VARCHAR',
+				 'constraint' => '500',
 				 'null' => TRUE
 		  ),
 			'html' => array(
